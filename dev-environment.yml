@@ -1,8 +1,0 @@
-name: pyspotstream
-channels:
-  - conda-forge
-  - defaults
-dependencies:
-  - black
-  - flake8
-  - tox
