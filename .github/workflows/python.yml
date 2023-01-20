@@ -1,11 +1,6 @@
-name: ci_python
+name: build
 
-on:
-  push:
-    paths:
-      - "pyspotseven"
-      - "pyproject.toml"
-  pull_request:
+on: ["push", "pull_request"]
 
 jobs:
   run:
