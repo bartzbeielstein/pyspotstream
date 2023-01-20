@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=61.0",
+            "graphviz",
+            "numpy",
+            "river",
+            "scikit-learn",
+            "matplotlib"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "pyspotstream"
+version = "0.1.8"
+authors = [
+  { name="T. Bartz-Beielstein", email="tbb@bartzundbartz.de" },
+  {name="Aleksandr Subbotin", email="aleksandr.subbotin@th-koeln.de"},
+  {name= "Noah Puetz", email="noah.c.puetz@gmail.com"},
+  {name= "Olaf Mersmann", email="olaf.mersmann@th-koeln.de"}
+]
+description = "A small example package"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://www.spotseven.de"
+
+[tool.setuptools]
+# ...
+# By default, include-package-data is true in pyproject.toml, so you do
+# NOT have to specify this line.
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["pyspotstream"]
