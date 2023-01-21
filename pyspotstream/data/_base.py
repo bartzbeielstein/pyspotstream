@@ -1,4 +1,17 @@
+import hashlib
 from pathlib import Path
+
+def sha256sum(filename):
+    hash = hashlib.sha256()
+    buf = bytearray(1024 * 1024) # Reusable 1MB buffer
+    view = memoryview(buf)
+    with open(filename, "rb") as fd:
+        while True:
+            size = fd.readinto(buf)
+            if size == 0:
+                break  # EOF
+            hash.update(view[:size])
+        return hash.hexdigest()
 
 def get_data_home(data_home=None) -> str:
     """Return the path of the pyspotstream data directory.
