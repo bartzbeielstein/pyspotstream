@@ -154,7 +154,7 @@ def baseline_batch_cross_val_experiment(
     return model_batch_time, mean_cross_val_scores, model_batch_mem, model
 
 
-def eval_multiple_instances(
+def eval_mini_batch(
     X,
     y,
     model,
