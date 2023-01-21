@@ -1,10 +1,14 @@
-import pandas as pd
-from pyspotstream.data.download import download_from_url
-import numpy as np
-from datetime import datetime
-import time
 import re
 import os
+import time
+import numpy as np
+import pandas as pd
+
+from ._base import sha256sum
+
+from pathlib import Path
+from datetime import datetime
+from urllib.request import urlretrieve
 
 
 def get_lat_lon(x):
@@ -18,19 +22,30 @@ def get_lat_lon(x):
         return [-1.0, -1.0]
 
 
-def get_opm(opm_url="https://data.ct.gov/api/views/5mzw-sjtu/rows.csv?accessType=DOWNLOAD",
-            filename="opm_data.csv",
-            overwrite=False):
-    if not os.path.isfile(filename) or overwrite:
-        print('Downloading to: ' + filename)
-        try:
-            download_from_url(url=opm_url, filename=filename)
-            print("Finished.")
-        except Exception as err:
-            print(err)
-            print('Could not download.')
-    else:
-        print("File " + filename + " already exists. To enforce download, set 'overwrite=True'.")
+OPM_URL = "https://data.ct.gov/api/views/5mzw-sjtu/rows.csv?accessType=DOWNLOAD"
+OPM_HASH = "1ad8266b15525cf4e851b14cd18a68672fd3864ce102dbf1e151cb9ac8ea1fd0"
+
+def get_opm(filename="opm_data.csv", overwrite=False):
+    """Download Real Estate Sales data from 2001 to 2020
+
+    The data is from Connecticut's Office of Policy and Managment (OPM) and is in the Public Domain.
+    See https://portal.ct.gov/OPM/IGPP/Publications/Real-Estate-Sales-Listing for full details.
+    """
+
+    if not isinstance(filename, Path):
+        filename = Path(filename)
+
+    if filename.is_file() and overwrite:
+        filename.unlink()
+
+    if not filename.is_file():
+        print(f"Downloading OPM dataset to '{filename}'.")
+        urlretrieve(url=OPM_URL, filename=filename)
+        print("Finished downloading OPM dataset.")
+
+    if sha256sum(filename) != OPM_HASH:
+        raise Exception(f"Hash mismatch for OPM data. This is likely caused by a corrupted download.")
+    return filename
 
 
 def load_opm(filename="opm_data.csv",
