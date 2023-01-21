@@ -19,17 +19,30 @@ def baseline_batch_experiment(
     metric=sk_metrics.mean_absolute_error,
     verbosity=True,
 ):
-    """Standard batch machine learning experiment.
+    """
+    Standard batch machine learning experiment. The `train_test_split` method from
+    `sklearn.model_selection` is applied to the input data set (`X` and `y`).
 
     Args:
-        X (DataFrame): _description_
-        y (DataFrame): _description_
-        model: model
-        random_state (int, optional): _description_. Defaults to 0.
-        test_size (float, optional): _description_. Defaults to 0.90.
-        shuffle (bool, optional): _description_. Defaults to False.
-        metric (_type_, optional): _description_. Defaults to sk_metrics.mean_absolute_error.
-        verbosity (bool, optional): _description_. Defaults to True.
+        X (DataFrame): Pandas DataFrame that contains the input values.
+        y (Series): Pandas Series that contains the output values.
+        model: Batch Learner (model), e.g., `DecisionTreeRegressor` from `sklearn`.
+        random_state (int): Controls the shuffling applied to the data before applying
+        the split. Only needed if `shuffle=True`.
+        Pass an int for reproducible output across multiple function calls.
+        See :term:`Glossary <random_state>`.
+        test_size (float or int):
+            If float, should be between 0.0 and 1.0 and represent the proportion
+            of the dataset to include in the test split. If int, represents the
+            absolute number of test samples. If None, the value is set to the
+            complement of the train size. If ``train_size`` is also None, it will
+            be set to 0.25.
+        shuffle (bool):
+            Whether or not to shuffle the data before splitting. Note: In contrast to
+            `sklearn.model_selection`'s default setting (which is `True`), the default
+            is `False`.
+        metric: Defaults to sk_metrics.mean_absolute_error.
+        verbosity (bool): If `True`, metrics are printed.
 
     Returns:
         dict: model_times
