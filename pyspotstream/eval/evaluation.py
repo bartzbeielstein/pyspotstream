@@ -179,16 +179,25 @@ def eval_mini_batch(
             model
         x_part (str, optional):
             Partition of the input space. Defaults to 'linspace'.
-        m_sklearn (bool, optional): Indicator for `sklearn`models. If `False`, then `river` models are used.
-        metric (_type_, optional): Evaluation metric. Defaults to sk_metrics.mean_absolute_error.
-        eval_on_full_data (bool, optional): Evaluation uses the full data set. Defaults to False.
-        fit_on_available_data (bool, optional): Fit the model on the whole set of observed data.
-        fit_on_fixed (bool, optional): Fit the model on a fixed data set. Defaults to False.
-        fixed_train_size (int, optional): Size of the fixed data set. Defaults to 0.
-        n_fit (int, optional): Fit (train) on the last n_fit partitions only.
-        This is a moving window of size (n_fit x partition size, which is computed via `x_part`). Defaults to 10.
-        n_splits (int, optional): Number of splits (mini-batches) used for `x_part`. Defaults to 100.
-        verbose (bool, optional): verbosity level. Defaults to False.
+        m_sklearn (bool, optional):
+            Indicator for `sklearn`models. If `False`, then `river` models are used.
+        metric (_type_, optional):
+            Evaluation metric. Defaults to sk_metrics.mean_absolute_error.
+        eval_on_full_data (bool, optional):
+            Evaluation uses the full data set. Defaults to False.
+        fit_on_available_data (bool, optional):
+            Fit the model on the whole set of observed data.
+        fit_on_fixed (bool, optional):
+            Fit the model on a fixed data set. Defaults to False.
+        fixed_train_size (int, optional):
+            Size of the fixed data set. Defaults to 0.
+        n_fit (int, optional):
+            Fit (train) on the last n_fit partitions only.
+            This is a moving window of size (n_fit x partition size, which is computed via `x_part`). Defaults to 10.
+        n_splits (int, optional):
+            Number of splits (mini-batches) used for `x_part`. Defaults to 100.
+        verbose (bool, optional):
+            verbosity level. Defaults to False.
 
     Raises:
         Exception: _description_
