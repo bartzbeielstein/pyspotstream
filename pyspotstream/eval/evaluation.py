@@ -9,6 +9,22 @@ from river import stream as river_stream
 from river import preprocessing as river_preprocessing
 
 
+def get_acronym(x):
+    """
+    Maps long name to short acronym, e.g., `"mean_absolute_error"` to `"MAE"`.
+
+    Args:
+        x (string): long name
+
+    Returns:
+        string: acronym
+    """
+    if x == "mean_absolute_error":
+        return "MAE"
+    else:
+        return "Acronym unknown."
+
+
 def baseline_batch_experiment(
     X,
     Y,
@@ -66,11 +82,12 @@ def baseline_batch_experiment(
 
     pred_y = model.predict(test_X)
     model_batch_mae = metric(test_y, pred_y)
+    metric_name = str(metric.__name__)
 
     if verbosity:
-        print(f"MAE of {model}: ", model_batch_mae)
-        print(f"Time of {model}: ", model_batch_time)
-        print(f"Memory of {model}: ", model_batch_mem)
+        print(f"{get_acronym(str(metric.__name__))} of {str(model.__class__.__name__)}: ", model_batch_mae)
+        print(f"Time of {str(model.__class__.__name__)}: ", model_batch_time)
+        print(f"Memory of {str(model.__class__.__name__)}: ", model_batch_mem)
 
     return model_batch_time, model_batch_mae, model_batch_mem, model
 
