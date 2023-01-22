@@ -4,7 +4,8 @@ import logging
 import numpy as np
 import pandas as pd
 
-from ._base import sha256sum
+# FIXME: Not used at the moment (see below)
+# from ._base import sha256sum
 
 from pathlib import Path
 from datetime import datetime
@@ -53,22 +54,27 @@ def get_opm(filename="opm_data.csv", overwrite=False):
     # hash = sha256sum(filename)
     # if hash != OPM_HASH:
     #   raise Exception(f"""Hash mismatch for OPM data.
-#
-#Expected: {OPM_HASH}
-#Observed: {hash}
-#File size: {filename.stat().st_size}
-#
-#This is likely caused by a corrupted download. Delete the downloaded file
-#and try again. If the problem persists, try to manually download the file
-#from {OPM_URL}.""")
+    #
+    # Expected: {OPM_HASH}
+    # Observed: {hash}
+    # File size: {filename.stat().st_size}
+    #
+    # This is likely caused by a corrupted download. Delete the downloaded file
+    # and try again. If the problem persists, try to manually download the file
+    # from {OPM_URL}.""")
     return filename
 
 
 def load_opm(
-    filename="opm_data.csv", data_type="num", n=None, sorted=True, verbose=False
-):
-    # df = pd.read_pickle("OPM.pkl")
-    dateparse = lambda x: datetime.strptime(x, "%m/%d/%Y")
+        filename="opm_data.csv",
+        data_type="num",
+        n=None,
+        sorted=True,
+        verbose=False
+        ):
+    def dateparse(x):
+        return datetime.strptime(x, "%m/%d/%Y")
+
     df = pd.read_csv(filename, date_parser=dateparse)
     v = "Date Recorded"
     index = df[v].isnull()
@@ -165,30 +171,14 @@ def load_opm(
         "OPM remarks",
     ]
 
-    num_cat_cols = num_cols + cat_cols
-    # Wie cal_cols, nur teilweise Hash-Werte:
-    cat_cols_hashed = [
-        "town_hash",
-        "address_hash",
-        "Property Type",
-        "Residential Type",
-        "Non Use Code",
-        "Assessor Remarks",
-        "OPM remarks",
-    ]
-
-    # Datum infos in unterschiedlichen Formaten:
-    date_cols = ["Date Recorded", "timestamp_rec", "dti_rec"]
-
-    match data_type:
-        case "num":
-            x = df[num_cols]
-        case "cat":
-            x = df[cat_cols]
-        case "num_cat":
-            x = df[num_cat_cols]
-        case _:
-            print("Wrong data type. Should be one of 'num', 'cat' or 'num_cat'.")
+    if data_type == "num":
+        x = df[num_cols]
+    elif data_type == "cat":
+        x = df[cat_cols]
+    elif data_type == "num_cat":
+        x = df[num_cols + cat_cols]
+    else:
+        raise Exception("Unknown `data_type`, should be on of 'num', 'cat' or 'num_cat'.")
 
     # Select sample size
     if n is None:
