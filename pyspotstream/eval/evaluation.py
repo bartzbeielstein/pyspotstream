@@ -25,7 +25,7 @@ def get_acronym(x):
         return "Acronym unknown."
 
 
-def baseline_batch_experiment(
+def eval_batch_machine_learning(
     X,
     Y,
     model,
@@ -154,7 +154,7 @@ def baseline_batch_cross_val_experiment(
     return model_batch_time, mean_cross_val_scores, model_batch_mem, model
 
 
-def eval_mini_batch(
+def eval_mini_batch_machine_learning_machine_learning(
     X,
     y,
     model,
@@ -368,7 +368,7 @@ def eval_mini_batch(
         return model_times, model_scores, model_mem, model_dict
 
 
-def eval_single_instances(X, y, model, metric, task="clf"):
+def eval_online_machine_learning(X, y, model, metric, task="clf"):
     """This methods executes an online machine learning task (every single instance is processed separately)
 
     Args:
