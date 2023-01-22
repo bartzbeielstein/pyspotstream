@@ -105,9 +105,9 @@ def baseline_batch_cross_val_experiment(
     """Not Working yet!!!.
 
     Args:
-        X (DataFrame): _description_
-        y (DataFrame): _description_
-        model: model
+        X (DataFrame): Pandas DataFrame that contains the input values.
+        y (Series): Pandas Series that contains the output values.
+        model: Batch Learner (model), e.g., `DecisionTreeRegressor` from `sklearn`.
         random_state (int, optional): _description_. Defaults to 0.
         test_size (float, optional): _description_. Defaults to 0.2.
         shuffle (bool, optional): _description_. Defaults to False.

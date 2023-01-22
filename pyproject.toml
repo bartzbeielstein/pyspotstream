@@ -13,7 +13,7 @@ authors = [
   {name="Olaf Mersmann", email="olafm@p-value.net"},
   {name="T. Bartz-Beielstein", email="tbb@bartzundbartz.de" },
 ]
-description = "A small example package"
+description = "A package for the experimental analysis of BML and OML algorithms."
 readme = "README.md"
 license = { text="AGPL-3.0-or-later" }
 requires-python = ">=3.10"
