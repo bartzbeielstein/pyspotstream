@@ -1,5 +1,4 @@
 import re
-import os
 import time
 import numpy as np
 import pandas as pd
@@ -13,7 +12,7 @@ from urllib.request import urlretrieve
 
 def get_lat_lon(x):
     if x != "Unknown":
-        xyst = re.findall(r'\((.+)\)', x)
+        xyst = re.findall(r"\((.+)\)", x)
         xy = xyst[0].split(" ")
         lat = float(xy[0])
         lon = float(xy[1])
@@ -24,6 +23,7 @@ def get_lat_lon(x):
 
 OPM_URL = "https://data.ct.gov/api/views/5mzw-sjtu/rows.csv?accessType=DOWNLOAD"
 OPM_HASH = "1ad8266b15525cf4e851b14cd18a68672fd3864ce102dbf1e151cb9ac8ea1fd0"
+
 
 def get_opm(filename="opm_data.csv", overwrite=False):
     """Download Real Estate Sales data from 2001 to 2020
@@ -44,24 +44,28 @@ def get_opm(filename="opm_data.csv", overwrite=False):
         print("Finished downloading OPM dataset.")
 
     if sha256sum(filename) != OPM_HASH:
-        raise Exception(f"Hash mismatch for OPM data. This is likely caused by a corrupted download.")
+        raise Exception(
+            print("Hash mismatch for OPM data. This is likely caused by a corrupted download.")
+        )
     return filename
 
 
-def load_opm(filename="opm_data.csv",
-             data_type="num",
-             n=None,
-             sorted=True,
-             verbose=False):
+def load_opm(
+    filename="opm_data.csv", data_type="num", n=None, sorted=True, verbose=False
+):
     # df = pd.read_pickle("OPM.pkl")
-    dateparse = lambda x: datetime.strptime(x, '%m/%d/%Y')
+    dateparse = lambda x: datetime.strptime(x, "%m/%d/%Y")
     df = pd.read_csv(filename, date_parser=dateparse)
     v = "Date Recorded"
     index = df[v].isnull()
     df.dropna(subset=[v], inplace=True)
     df.reset_index(inplace=True)
     df = df.assign(dti_rec=pd.to_datetime(df[v], infer_datetime_format=True))
-    df = df.assign(timestamp_rec=list(map(lambda x: int(time.mktime(x.timetuple())), df["dti_rec"])))
+    df = df.assign(
+        timestamp_rec=list(
+            map(lambda x: int(time.mktime(x.timetuple())), df["dti_rec"])
+        )
+    )
     t0 = pd.to_datetime("2001-09-30", infer_datetime_format=True)
     index = df["dti_rec"] < t0
     df = df.drop(df[df["dti_rec"] < t0].index)
@@ -87,13 +91,15 @@ def load_opm(filename="opm_data.csv",
     index = df[v] > max_val
     df = df.drop(df[df[v] > max_val].index)
     v = "Sales Ratio"
-    index = (df[v] < 1e-4)
+    index = df[v] < 1e-4
     df.loc[index, "Assessed Value"] = df.loc[index, "Assessed Value"] * 1e4
-    df.loc[index, "Sales Ratio"] = df.loc[index, "Assessed Value"] / df.loc[index, "Sale Amount"]
-    index = (df[v] < 1e-4)
+    df.loc[index, "Sales Ratio"] = (
+        df.loc[index, "Assessed Value"] / df.loc[index, "Sale Amount"]
+    )
+    index = df[v] < 1e-4
     df.loc[index, "Assessed Value"] - df.loc[index, "Sale Amount"]
     v = "Assessed Value"
-    index = (df[v] > 1e8)
+    index = df[v] > 1e8
     df = df.drop(df[df[v] > 1e8].index)
     v = "Assessed Value"
     v = "Property Type"
