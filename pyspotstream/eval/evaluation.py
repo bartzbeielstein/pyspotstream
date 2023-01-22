@@ -100,12 +100,9 @@ class ML_Evaluations:
             print(f"Time of {str(model.__class__.__name__)}: ", model_batch_time)
             print(f"Memory of {str(model.__class__.__name__)}: ", model_batch_mem)
 
-        return ML_Evaluations(
-            time=model_batch_time,
-            score=model_batch_mae,
-            mem=model_batch_mem,
-            model=model,
-        )
+        self.time = model_batch_time
+        self.score = model_batch_mae
+        self.mem = model_batch_mem
 
     def baseline_batch_cross_val_experiment(
         self,
