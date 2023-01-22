@@ -172,7 +172,6 @@ class ML_Evaluations:
         self,
         X,
         y,
-        model,
         x_part="linspace",
         m_sklearn=True,
         metric=sk_metrics.mean_absolute_error,
@@ -215,10 +214,7 @@ class ML_Evaluations:
                 verbosity level. Defaults to False.
 
         Returns:
-            dict: time
-            dict: score
-            dict: mem
-            dict: model_dict
+
         """
         time = {}
         score = {}
@@ -311,7 +307,10 @@ class ML_Evaluations:
                 mem[break_point] = tracemalloc.get_traced_memory()[1] / 1024
 
             tracemalloc.stop()
-            return time, score, mem, model_dict
+            self.time = time
+            self.score = score
+            self.mem = mem
+            self.model = model_dict
 
         else:
             # River Model: Start of Train and Eval Loop
@@ -382,7 +381,10 @@ class ML_Evaluations:
                 mem[break_point] = tracemalloc.get_traced_memory()[1] / 1024
 
             tracemalloc.stop()
-            return ML_Evaluations(time=time, score=score, mem=mem, model=model_dict)
+            self.time = time
+            self.score = score
+            self.mem = mem
+
 
     def eval_online_machine_learning(self, X, y, model, metric, task="clf"):
         """This methods executes an online machine learning task (every single instance is processed separately)
