@@ -20,13 +20,15 @@ class ML_Evaluations:
     time: dict
     score: dict
     mem: dict
-    model: list
+    model:
+    mini_batch_model: dict
 
-    def __init__(self, model: list):
+    def __init__(self, model):
         self.name = {}
         self.time = {}
         self.score = {}
         self.model = model
+        self.mini_batch_model = {}
 
 
     def eval_batch_machine_learning(
@@ -68,10 +70,7 @@ class ML_Evaluations:
             verbosity (bool): If `True`, metrics are printed.
 
         Returns:
-            dict: time
-            dict: score
-            dict: mem
-            list: model
+
         """
 
         train_X, test_X, train_y, test_y = train_test_split(
@@ -83,7 +82,7 @@ class ML_Evaluations:
         tracemalloc.reset_peak()
         tic = time.time()
         # This evaluation uses only one model, which is the 1st in the list:
-        model = self.model[0]
+        model = self.model
         model.fit(train_X, train_y)
 
         model_batch_time = time.time() - tic
@@ -310,7 +309,7 @@ class ML_Evaluations:
             self.time = time
             self.score = score
             self.mem = mem
-            self.model = model_dict
+            self.mini_batch_model = model_dict
 
         else:
             # River Model: Start of Train and Eval Loop
@@ -386,27 +385,20 @@ class ML_Evaluations:
             self.mem = mem
 
 
-    def eval_online_machine_learning(self, X, y, model, metric, task="clf"):
+    def eval_online_machine_learning(self, X, y, metric, task="clf"):
         """This methods executes an online machine learning task (every single instance is processed separately)
 
         Args:
             X (DataFrame): _description_
             y (DataFrame): _description_
-            model: model
             metric (_type_): metric
             task (str, optional): task_description_. Defaults to "clf".
 
-        Returns:
-            dict: time
-            dict: score
-            dict: mem
-            dict: model
         """
-
+        model = self.model
         time = {}
         score = {}
         mem = {}
-        model = {}
         scaler = river_preprocessing.StandardScaler()
         i = 0
         y_true = []
@@ -439,6 +431,6 @@ class ML_Evaluations:
             i = i + 1
 
         tracemalloc.stop()
-        # Consistently return a dict with models
-        model[0] = model
-        return ML_Evaluations(time, score, mem, model)
+        self.time = time
+        self.score = score
+        self.mem = mem
