@@ -43,10 +43,13 @@ def get_opm(filename="opm_data.csv", overwrite=False):
         urlretrieve(url=OPM_URL, filename=filename)
         print("Finished downloading OPM dataset.")
 
-    if sha256sum(filename) != OPM_HASH:
-        raise Exception(
-            print("Hash mismatch for OPM data. This is likely caused by a corrupted download.")
-        )
+    # FIXME: OME: Currently disabled because the ct.gov api returns
+    #             the rows in a different order from time to time which
+    #             changes the hash. :/
+    #if sha256sum(filename) != OPM_HASH:
+    #    raise Exception(
+    #        print("Hash mismatch for OPM data. This is likely caused by a corrupted download.")
+    #    )
     return filename
 
 
