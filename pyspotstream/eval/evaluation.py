@@ -8,12 +8,14 @@ from sklearn.model_selection import train_test_split
 from river import stream as river_stream
 from river import preprocessing as river_preprocessing
 from dataclasses import dataclass
+from pyspotstream.misc.conventions import get_acronym
 
 
 @dataclass
 class ML_Evaluations:
-    """Class for keeping track of the OML and BML evaluations."""
-
+    """
+    Class for keeping track of the OML and BML evaluations.
+    """
     name: str
     time: dict
     score: dict
@@ -92,7 +94,7 @@ class ML_Evaluations:
 
         if verbosity:
             print(
-                f"{self.get_acronym(str(metric.__name__))} of {str(model.__class__.__name__)}: ",
+                f"{get_acronym(str(metric.__name__))} of {str(model.__class__.__name__)}: ",
                 model_batch_mae,
             )
             print(f"Time of {str(model.__class__.__name__)}: ", model_batch_time)
