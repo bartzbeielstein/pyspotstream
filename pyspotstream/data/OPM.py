@@ -1,5 +1,6 @@
 import re
 import time
+import logging
 import numpy as np
 import pandas as pd
 
@@ -8,6 +9,9 @@ from ._base import sha256sum
 from pathlib import Path
 from datetime import datetime
 from urllib.request import urlretrieve
+
+
+logger = logging.Logger(__name__)
 
 
 def get_lat_lon(x):
@@ -39,17 +43,24 @@ def get_opm(filename="opm_data.csv", overwrite=False):
         filename.unlink()
 
     if not filename.is_file():
-        print(f"Downloading OPM dataset to '{filename}'.")
+        logger.info(f"Downloading OPM dataset to '{filename}'.")
         urlretrieve(url=OPM_URL, filename=filename)
-        print("Finished downloading OPM dataset.")
+        logger.info("Finished downloading OPM dataset.")
 
     # FIXME: OME: Currently disabled because the ct.gov api returns
     #             the rows in a different order from time to time which
     #             changes the hash. :/
-    #if sha256sum(filename) != OPM_HASH:
-    #    raise Exception(
-    #        print("Hash mismatch for OPM data. This is likely caused by a corrupted download.")
-    #    )
+    # hash = sha256sum(filename)
+    # if hash != OPM_HASH:
+    #   raise Exception(f"""Hash mismatch for OPM data.
+#
+#Expected: {OPM_HASH}
+#Observed: {hash}
+#File size: {filename.stat().st_size}
+#
+#This is likely caused by a corrupted download. Delete the downloaded file
+#and try again. If the problem persists, try to manually download the file
+#from {OPM_URL}.""")
     return filename
 
 

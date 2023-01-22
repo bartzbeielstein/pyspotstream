@@ -42,3 +42,8 @@ packages = ["pyspotstream"]
 
 [tool.setuptools_scm]
 write_to = "pyspotstream/_version.py"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
