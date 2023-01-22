@@ -214,6 +214,7 @@ class ML_Evaluations:
         Returns:
 
         """
+        start_time = get_time()
         model = self.model
         time = {}
         score = {}
@@ -310,6 +311,8 @@ class ML_Evaluations:
             self.score = score
             self.mem = mem
             self.mini_batch_model = model_dict
+            runtime = get_time() - start_time
+            print(f"Completed after %s seconds.{runtime}")
 
         else:
             # River Model: Start of Train and Eval Loop
@@ -383,6 +386,8 @@ class ML_Evaluations:
             self.time = time
             self.score = score
             self.mem = mem
+            runtime = get_time() - start_time
+            print(f"Completed after %s seconds.{runtime}")
 
     def eval_online_machine_learning(self, X, y, metric, task="clf"):
         """
