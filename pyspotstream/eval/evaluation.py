@@ -154,7 +154,7 @@ def baseline_batch_cross_val_experiment(
     return model_batch_time, mean_cross_val_scores, model_batch_mem, model
 
 
-def eval_mini_batch_machine_learning_machine_learning(
+def eval_mini_batch_machine_learning(
     X,
     y,
     model,
@@ -173,15 +173,14 @@ def eval_mini_batch_machine_learning_machine_learning(
     """This method executes a mini-batch experiment.
 
     Args:
-        X (DataFrame):
-        y (DataFrame):
-        model:
-            model
+        X (DataFrame): Pandas DataFrame that contains the input values.
+        y (Series): Pandas Series that contains the output values.
+        model: Batch Learner (model), e.g., `DecisionTreeRegressor` from `sklearn`.
         x_part (str, optional):
             Partition of the input space. Defaults to 'linspace'.
         m_sklearn (bool, optional):
             Indicator for `sklearn`models. If `False`, then `river` models are used.
-        metric (_type_, optional):
+        metric:
             Evaluation metric. Defaults to sk_metrics.mean_absolute_error.
         eval_on_full_data (bool, optional):
             Evaluation uses the full data set. Defaults to False.
@@ -198,9 +197,6 @@ def eval_mini_batch_machine_learning_machine_learning(
             Number of splits (mini-batches) used for `x_part`. Defaults to 100.
         verbose (bool, optional):
             verbosity level. Defaults to False.
-
-    Raises:
-        Exception: _description_
 
     Returns:
         dict: model_times
