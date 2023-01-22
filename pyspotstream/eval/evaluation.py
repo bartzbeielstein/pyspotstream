@@ -18,12 +18,12 @@ class ML_Evaluations:
     time: dict
     score: dict
     mem: dict
-    model: dict
+    model: list
 
-    def __init__(self, name: str, time: dict, score: dict, model: dict):
-        self.name = name
-        self.time = time
-        self.score = score
+    def __init__(self, model: list):
+        self.name = {}
+        self.time = {}
+        self.score = {}
         self.model = model
 
 
@@ -31,7 +31,6 @@ class ML_Evaluations:
         self,
         X,
         Y,
-        model,
         random_state=0,
         test_size=0.90,
         shuffle=False,
@@ -43,9 +42,12 @@ class ML_Evaluations:
         `sklearn.model_selection` is applied to the input data set (`X` and `y`).
 
         Args:
-            X (DataFrame): Pandas DataFrame that contains the input values.
-            y (Series): Pandas Series that contains the output values.
-            model: Batch Learner (model), e.g., `DecisionTreeRegressor` from `sklearn`.
+            X (DataFrame):
+                Pandas DataFrame that contains the input values.
+            y (Series):
+                Pandas Series that contains the output values.
+            model (list):
+                Batch Learner (model), e.g., `DecisionTreeRegressor` from `sklearn`.
             random_state (int): Controls the shuffling applied to the data before applying
             the split. Only needed if `shuffle=True`.
             Pass an int for reproducible output across multiple function calls.
@@ -67,7 +69,7 @@ class ML_Evaluations:
             dict: time
             dict: score
             dict: mem
-            dict: model
+            list: model
         """
 
         train_X, test_X, train_y, test_y = train_test_split(
@@ -78,6 +80,8 @@ class ML_Evaluations:
         tracemalloc.start()
         tracemalloc.reset_peak()
         tic = time.time()
+        # This evaluation uses only one model, which is the 1st in the list:
+        model = self.model[0]
         model.fit(train_X, train_y)
 
         model_batch_time = time.time() - tic
@@ -94,9 +98,6 @@ class ML_Evaluations:
             print(f"Time of {str(model.__class__.__name__)}: ", model_batch_time)
             print(f"Memory of {str(model.__class__.__name__)}: ", model_batch_mem)
 
-        # Consistently return a dict with models
-        model = {}
-        model[0] = model
         return ML_Evaluations(
             time=model_batch_time,
             score=model_batch_mae,
