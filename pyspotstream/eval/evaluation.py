@@ -387,7 +387,7 @@ class ML_Evaluations:
             self.score = score
             self.mem = mem
             runtime = get_time() - start_time
-            print(f"Completed after %s seconds.{runtime}")
+            print(f"Completed after {np.round(runtime,2)}  seconds.")
 
     def eval_online_machine_learning(self, X, y, metric, task="clf"):
         """
