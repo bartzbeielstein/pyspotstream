@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from river import stream as river_stream
 from river import preprocessing as river_preprocessing
 from dataclasses import dataclass
-from pyspotstream.misc.conventions import get_acronym
+from ..misc.conventions import get_acronym
 
 
 @dataclass
