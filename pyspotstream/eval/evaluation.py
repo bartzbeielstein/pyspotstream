@@ -384,9 +384,10 @@ class ML_Evaluations:
             self.score = score
             self.mem = mem
 
-
     def eval_online_machine_learning(self, X, y, metric, task="clf"):
-        """This methods executes an online machine learning task (every single instance is processed separately)
+        """
+        This methods executes an online machine learning task
+        (every single instance is processed separately).
 
         Args:
             X (DataFrame): _description_
