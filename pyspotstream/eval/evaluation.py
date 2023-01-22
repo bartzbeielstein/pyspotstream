@@ -1,5 +1,5 @@
 import gc
-import time
+from time import time as get_time
 import tracemalloc
 
 import numpy as np
@@ -79,12 +79,12 @@ class ML_Evaluations:
         gc.collect()
         tracemalloc.start()
         tracemalloc.reset_peak()
-        tic = time.time()
+        tic = get_time()
         # This evaluation uses only one model, which is the 1st in the list:
         model = self.model
         model.fit(train_X, train_y)
 
-        model_batch_time = time.time() - tic
+        model_batch_time = get_time() - tic
         model_batch_mem = tracemalloc.get_traced_memory()[1] / 1024
 
         pred_y = model.predict(test_X)
@@ -143,12 +143,12 @@ class ML_Evaluations:
         gc.collect()
         tracemalloc.start()
         tracemalloc.reset_peak()
-        tic = time.time()
+        tic = get_time()
         # model.fit(train_X, train_y)
         cross_val_score = cross_val_score(
             model, train_X, train_y, cv=5, scoring=scoring
         )
-        model_batch_time = time.time() - tic
+        model_batch_time = get_time() - tic
         model_batch_mem = tracemalloc.get_traced_memory()[1] / 1024
         #
         mean_cross_val_score = cross_val_score.mean()
@@ -250,7 +250,7 @@ class ML_Evaluations:
 
                 gc.collect()
                 tracemalloc.reset_peak()
-                tic = time.time()
+                tic = get_time()
 
                 # -- TRAINING --
                 if fit_on_fixed:
@@ -302,7 +302,7 @@ class ML_Evaluations:
                     if verbose:
                         print("\tNo more Data to predict on!")
 
-                time[break_point] = time.time() - tic
+                time[break_point] = get_time() - tic
                 mem[break_point] = tracemalloc.get_traced_memory()[1] / 1024
 
             tracemalloc.stop()
@@ -323,7 +323,7 @@ class ML_Evaluations:
 
                 gc.collect()
                 tracemalloc.reset_peak()
-                tic = time.time()
+                tic = get_time()
 
                 # -- TRAINING --
                 if fit_on_fixed:
@@ -376,7 +376,7 @@ class ML_Evaluations:
                     if verbose:
                         print("\tNo more Data to predict on!")
 
-                time[break_point] = time.time() - tic
+                time[break_point] = get_time() - tic
                 mem[break_point] = tracemalloc.get_traced_memory()[1] / 1024
 
             tracemalloc.stop()
@@ -408,7 +408,7 @@ class ML_Evaluations:
         tracemalloc.start()
         gc.collect()
         for xi, yi in river_stream.iter_pandas(X, y):
-            tic = time.time()
+            tic = get_time()
 
             xi_scaled = scaler.learn_one(xi).transform_one(xi)
             yi_pred = model.predict_one(xi_scaled)
@@ -417,7 +417,7 @@ class ML_Evaluations:
 
             model.learn_one(xi_scaled, yi)
             mem[i] = tracemalloc.get_traced_memory()[1] / 1024
-            time[i] = time.time() - tic
+            time[i] = get_time() - tic
 
             if task == "clf":
                 y_pred.append(bool(y_pred))
