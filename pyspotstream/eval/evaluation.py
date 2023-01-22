@@ -20,7 +20,7 @@ class ML_Evaluations:
     time: dict
     score: dict
     mem: dict
-    model:
+    model: object
     mini_batch_model: dict
 
     def __init__(self, model):
@@ -29,7 +29,6 @@ class ML_Evaluations:
         self.score = {}
         self.model = model
         self.mini_batch_model = {}
-
 
     def eval_batch_machine_learning(
         self,
@@ -215,6 +214,7 @@ class ML_Evaluations:
         Returns:
 
         """
+        model = self.model
         time = {}
         score = {}
         mem = {}
