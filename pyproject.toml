@@ -50,25 +50,16 @@ addopts = [
 
 [tool.ruff]
 line-length = 120
-# Enable Pyflakes `E` and `F` codes by default.
 select = ["E", "F"]
 ignore = []
-
-# Exclude a variety of commonly ignored directories.
-exclude = [
-    ".eggs",
-    ".git",
-    ".mypy_cache",
-    ".ruff_cache",
-    "__pypackages__",
-    "build",
-    "dist",
-    "venv",
-]
+exclude = ["__init__.py", "build", "dist"]
 per-file-ignores = {}
-# Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 target-version = "py310"
 
 [tool.ruff.mccabe]
 max-complexity = 10
+
+[tool.black]
+line-length = 120
+target-version = ["py310"]

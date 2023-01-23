@@ -1,194 +1,144 @@
-import re
-import time
 import logging
 import numpy as np
 import pandas as pd
 
-# FIXME: Not used at the moment (see below)
-# from ._base import sha256sum
-
 from pathlib import Path
-from datetime import datetime
+from sklearn.utils import Bunch
+from typing import Union, Tuple
 from urllib.request import urlretrieve
 
+from ._base import get_data_home
 
 logger = logging.Logger(__name__)
 
-
-def get_lat_lon(x):
-    if x != "Unknown":
-        xyst = re.findall(r"\((.+)\)", x)
-        xy = xyst[0].split(" ")
-        lat = float(xy[0])
-        lon = float(xy[1])
-        return [lat, lon]
-    else:
-        return [-1.0, -1.0]
-
-
 OPM_URL = "https://data.ct.gov/api/views/5mzw-sjtu/rows.csv?accessType=DOWNLOAD"
-OPM_HASH = "1ad8266b15525cf4e851b14cd18a68672fd3864ce102dbf1e151cb9ac8ea1fd0"
+OPM_DTYPE = {
+    "Address": np.dtype("O"),
+    "Assessed Value": np.dtype("float64"),
+    "Assessor Remarks": np.dtype("O"),
+    "List Year": np.dtype("int64"),
+    "Location": np.dtype("O"),
+    "Non Use Code": np.dtype("O"),
+    "OPM remarks": np.dtype("O"),
+    "Property Type": np.dtype("O"),
+    "Residential Type": np.dtype("O"),
+    "Sale Amount": np.dtype("float64"),
+    "Sales Ratio": np.dtype("float64"),
+    "Serial Number": np.dtype("int64"),
+    "Town": np.dtype("O"),
+}
 
 
-def get_opm(filename="opm_data.csv", overwrite=False):
-    """Download Real Estate Sales data from 2001 to 2020
+def fetch_opm(
+    *,
+    data_home: Union[str, Path] = None,
+    download_if_missing: bool = True,
+    return_X_y: bool = False,
+    include_numeric: bool = True,
+    include_categorical: bool = False,
+) -> Union[Tuple[pd.DataFrame, pd.Series], Bunch]:
+    """Load the Office of Planning and Managment dataset (regression).
+    Parameters
+    ----------
+    data_home : str or Path, default=None
+        Specify another download and cache folder for the dataset.
+    download_if_missing : bool, default=True
+        If False, raise an IOError if the data is not locally available
+        instead of trying to download the data from the source site.
+    return_X_y : bool, default=False
+        If True, returns ``(data.data, data.target)`` instead of a
+        :class:`~sklearn.utils.Bunch`.
 
-    The data is from Connecticut's Office of Policy and Managment (OPM) and is in the Public Domain.
-    See https://portal.ct.gov/OPM/IGPP/Publications/Real-Estate-Sales-Listing for full details.
+    Returns
+    -------
+    dataset : :class:`~sklearn.utils.Bunch`
+        Dictionary-like object, with the following attributes.
+        data : DataFrame
+        target : Series
+    (data, target) : tuple if ``return_X_y`` is True
+        A tuple of a pandas DataFrame (the data) and a pandas Series (target).
     """
-
-    if not isinstance(filename, Path):
-        filename = Path(filename)
-
-    if filename.is_file() and overwrite:
-        filename.unlink()
-
+    filename = get_data_home(data_home=data_home) / "opm_2001-2020.csv"
     if not filename.is_file():
+        if not download_if_missing:
+            raise IOError("Data not found and `download_if_missing` is False")
         logger.info(f"Downloading OPM dataset to '{filename}'.")
         urlretrieve(url=OPM_URL, filename=filename)
-        logger.info("Finished downloading OPM dataset.")
+    # FIXME: Add hash check for download.
 
-    # FIXME: OME: Currently disabled because the ct.gov api returns
-    #             the rows in a different order from time to time which
-    #             changes the hash. :/
-    # hash = sha256sum(filename)
-    # if hash != OPM_HASH:
-    #   raise Exception(f"""Hash mismatch for OPM data.
+    df = pd.read_csv(filename, dtype=OPM_DTYPE, parse_dates=["Date Recorded"])
+
+    # Collect rows (observations) we want to keep and subset only once.
     #
-    # Expected: {OPM_HASH}
-    # Observed: {hash}
-    # File size: {filename.stat().st_size}
-    #
-    # This is likely caused by a corrupted download. Delete the downloaded file
-    # and try again. If the problem persists, try to manually download the file
-    # from {OPM_URL}.""")
-    return filename
-
-
-def load_opm(
-        filename="opm_data.csv",
-        data_type="num",
-        n=None,
-        sorted=True,
-        verbose=False
-        ):
-    def dateparse(x):
-        return datetime.strptime(x, "%m/%d/%Y")
-
-    df = pd.read_csv(filename, date_parser=dateparse)
-    v = "Date Recorded"
-    index = df[v].isnull()
-    df.dropna(subset=[v], inplace=True)
-    df.reset_index(inplace=True)
-    df = df.assign(dti_rec=pd.to_datetime(df[v], infer_datetime_format=True))
-    df = df.assign(
-        timestamp_rec=list(
-            map(lambda x: int(time.mktime(x.timetuple())), df["dti_rec"])
-        )
+    # This might look kind of ugly but is much more efficient than making copy
+    # after copy of the (largish) data frame `df`.
+    idx = (
+        (df["Date Recorded"] >= "2001-09-30")
+        & (df["Assessed Value"] >= 2000)
+        & (df["Assessed Value"] <= 1e8)
+        & (df["Sale Amount"] >= 2000)
+        & (df["Sale Amount"] <= 2e8)
     )
-    t0 = pd.to_datetime("2001-09-30", infer_datetime_format=True)
-    index = df["dti_rec"] < t0
-    df = df.drop(df[df["dti_rec"] < t0].index)
-    v = "Town"
-    df = df.assign(town_hash=list(map(lambda x: str(hash(x)), df[v])))
-    v = "town_hash"
-    v = "Address"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    df = df.assign(address_hash=list(map(lambda x: str(hash(x)), df[v])))
-    v = "Assessed Value"
-    min_val = 2000
-    index = df[v] < min_val
-    df = df.drop(df[df[v] < min_val].index)
-    max_val = 1e8
-    index = df[v] > max_val
-    df = df.drop(df[df["Assessed Value"] == 138958820.0].index)
-    v = "Sale Amount"
-    index = df[v] < min_val
-    df = df.drop(df[df[v] < min_val].index)
-    v = "Sale Amount"
-    max_val = 2e8
-    index = df[v] > max_val
-    df = df.drop(df[df[v] > max_val].index)
-    v = "Sales Ratio"
-    index = df[v] < 1e-4
-    df.loc[index, "Assessed Value"] = df.loc[index, "Assessed Value"] * 1e4
-    df.loc[index, "Sales Ratio"] = (
-        df.loc[index, "Assessed Value"] / df.loc[index, "Sale Amount"]
-    )
-    index = df[v] < 1e-4
-    df.loc[index, "Assessed Value"] - df.loc[index, "Sale Amount"]
-    v = "Assessed Value"
-    index = df[v] > 1e8
-    df = df.drop(df[df[v] > 1e8].index)
-    v = "Assessed Value"
-    v = "Property Type"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    v = "Residential Type"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    v = "Non Use Code"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    v = "Assessor Remarks"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    v = "OPM remarks"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    v = "Location"
-    index = df[v].isnull()
-    df.loc[index, v] = "Unknown"
-    df = df.assign(lat=list(map(lambda x: get_lat_lon(x)[0], df[v])))
-    df = df.assign(lon=list(map(lambda x: get_lat_lon(x)[1], df[v])))
-    df = df.reset_index(drop=True)
-    for c, dtype in zip(df.columns, df.dtypes):
-        if dtype == np.float64:
-            df[c] = df[c].astype(np.float32)
-        if dtype == np.int64:
-            df[c] = df[c].astype(np.int32)
-    # Sort
-    if sorted:
-        df = df.sort_values(by=["timestamp_rec"], ignore_index=True)
+    logger.debug(f"Removing {len(idx) - idx.sum()} rows for constraint violations.")
 
-    num_cols = [
-        "List Year",  # Bekanntmachung (Jahr) als integer
-        "Assessed Value",
-        "Sale Amount",
-        "Sales Ratio",
-        "timestamp_rec",  # Verkaufsdatum (Tag) als integer
-        "lat",
-        "lon",
-    ]
-    cat_cols = [
-        "Town",
-        "Address",
-        "Property Type",
-        "Residential Type",
-        "Non Use Code",
-        "Assessor Remarks",
-        "OPM remarks",
-    ]
+    # Now keep only those rows which we selected with `idx`, sort the values by
+    # the date on which they were recorded and then reset the index.
+    df = df.loc[idx].sort_values(by="Date Recorded").reset_index(drop=True)
 
-    if data_type == "num":
-        x = df[num_cols]
-    elif data_type == "cat":
-        x = df[cat_cols]
-    elif data_type == "num_cat":
-        x = df[num_cols + cat_cols]
-    else:
-        raise Exception("Unknown `data_type`, should be on of 'num', 'cat' or 'num_cat'.")
+    cols = []
+    if include_numeric:
+        # Extract latitude and longitude from Location field.
+        # Converting to float32 looses precision.
+        df[["lat", "lon"]] = df["Location"].str.extract(r"POINT \((-?\d+\.\d+) (-?\d+\.\d+)\)").astype("float")
 
-    # Select sample size
-    if n is None:
-        n = df.shape[0]
-    x = x.iloc[range(n), :]
+        # Convert types to smaller types to save some space.
+        df["List Year"] = df["List Year"].astype("int16")
 
-    # drop and return "Sale Amount"
-    y = pd.DataFrame(x.pop("Sale Amount"))
+        # Add timestamp column by converting the Date Recorded to nanoseconds since epoch
+        # and divide by 1e9 to go from nanoseconds to seconds since epoch.
+        df["timestamp_rec"] = df["Date Recorded"].astype("int64") // 1e9
 
-    if verbose:
-        print(x.describe(include="all"))
-        print(y.describe(include="all"))
-    return x, y
+        # Converting `Assessed Value` to float32 changes 159 values
+        df["Assessed Value"] = df["Assessed Value"].astype("int32")
+
+        # Converting `Assessed Value` to int32/float32 changes 175/222 values
+        # df["Sale Amount"] = df["Sale Amount"].astype("int32")
+
+        cols.extend(["List Year", "Assessed Value", "Sale Amount", "Sales Ratio", "lat", "lon"])  # "timestamp_rec"
+
+    # FIXME: We probably want to invest some time into deriving more meaninfgul
+    # categorical variables from some of these. Especially the remarks columns
+    # would benefit from a BoW approach and the Address column really carries very
+    # little information.
+    if include_categorical:
+        categorical_columns = [
+            "Town",
+            "Address",
+            "Property Type",
+            "Residential Type",
+            "Non Use Code",
+            "Assessor Remarks",
+            "OPM remarks",
+        ]
+        cols.extend(categorical_columns)
+
+        for cat_col in categorical_columns:
+            df[cat_col] = df[cat_col].fillna("Unknown")
+            # If there less than 200 unique values, convert to "category"
+            # instead of storing as a string to save space.
+            if df[cat_col].nunique() < 200:
+                df[cat_col] = df[cat_col].astype("category")
+
+    if len(cols) == 0:
+        raise Exception("No columns selected. Did you set both `include_numeric` and `include_categorical` to False?")
+
+    X = df[cols]
+    y = df["Sale Amount"]
+
+    if return_X_y:
+        return (X, y)
+
+    return Bunch(data=X, target=y)
+
+
+__all__ = ["fetch_opm"]
