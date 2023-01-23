@@ -1,3 +1,12 @@
+"""Office of Policy and Management dataset
+
+The original database is available from CT's OPM
+
+    https://portal.ct.gov/OPM/IGPP/Publications/Real-Estate-Sales-Listing
+
+The data contains 985,862 observations of up to 14 variables.
+"""
+
 import logging
 import numpy as np
 import pandas as pd
@@ -93,8 +102,9 @@ def fetch_opm(
 
         # Check if points are inside the bounding box for CT.
         # Bounding box taken from https://anthonylouisdagostino.com/bounding-boxes-for-all-us-states/
-        outside_bbox = ((df["lon"] < -73.727775) | (df["lon"] > -71.786994) | 
-                        (df["lat"] < 40.980144) | (df["lat"] > 42.050587))
+        outside_bbox = (
+            (df["lon"] < -73.727775) | (df["lon"] > -71.786994) | (df["lat"] < 40.980144) | (df["lat"] > 42.050587)
+        )
         df.loc[outside_bbox, ["lon", "lat"]] = np.nan
         logger.debug(f"Found {outside_bbox.sum()} locations outside of CT's bounding box.")
 
@@ -111,7 +121,7 @@ def fetch_opm(
         # Converting `Assessed Value` to int32/float32 changes 175/222 values
         # df["Sale Amount"] = df["Sale Amount"].astype("int32")
 
-        cols.extend(["List Year", "Assessed Value", "Sale Amount", "Sales Ratio", "lat", "lon"])  # "timestamp_rec"
+        cols.extend(["List Year", "Assessed Value", "Sale Amount", "Sales Ratio", "lat", "lon", "timestamp_rec"])
 
     # FIXME: We probably want to invest some time into deriving more meaninfgul
     # categorical variables from some of these. Especially the remarks columns
