@@ -89,7 +89,14 @@ def fetch_opm(
     if include_numeric:
         # Extract latitude and longitude from Location field.
         # Converting to float32 looses precision.
-        df[["lat", "lon"]] = df["Location"].str.extract(r"POINT \((-?\d+\.\d+) (-?\d+\.\d+)\)").astype("float")
+        df[["lon", "lat"]] = df["Location"].str.extract(r"POINT \((-?\d+\.\d+) (-?\d+\.\d+)\)").astype("float")
+
+        # Check if points are inside the bounding box for CT.
+        # Bounding box taken from https://anthonylouisdagostino.com/bounding-boxes-for-all-us-states/
+        outside_bbox = ((df["lon"] < -73.727775) | (df["lon"] > -71.786994) | 
+                        (df["lat"] < 40.980144) | (df["lat"] > 42.050587))
+        df.loc[outside_bbox, ["lon", "lat"]] = np.nan
+        logger.debug(f"Found {outside_bbox.sum()} locations outside of CT's bounding box.")
 
         # Convert types to smaller types to save some space.
         df["List Year"] = df["List Year"].astype("int16")

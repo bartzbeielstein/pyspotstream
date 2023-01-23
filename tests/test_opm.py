@@ -1,7 +1,7 @@
 import pandas as pd
 
 from sklearn.utils import Bunch
-from pyspotstream.data import fetch_opm
+from pyspotstream.datasets import fetch_opm
 
 
 def test_Xy():
