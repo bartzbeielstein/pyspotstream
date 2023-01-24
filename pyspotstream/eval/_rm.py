@@ -1,6 +1,6 @@
 """Monitor resource usage of a block."""
 
-import gc
+# import gc
 import time
 import tracemalloc
 
