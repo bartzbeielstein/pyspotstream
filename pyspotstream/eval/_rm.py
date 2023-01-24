@@ -27,6 +27,9 @@ class ResourceMonitor:
         self._start = None        
     
     def __enter__(self):
+        # FIXME: gc.collect is very expensive and in cursory testing had 
+        #        no effect on the measured memory usage. Leave it off for now.
+        # gc.collect()
         if tracemalloc.is_tracing():
             raise ResourceMonitorError("Already tracing memory usage!")            
         tracemalloc.start()
