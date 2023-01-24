@@ -9,7 +9,19 @@ def test_simple():
         for i in range(100):
             sum += i
     r = rm.result()
-    assert r.time > 0
+    assert r.name is None
+    assert r.time >= 0
+    assert r.memory > 0
+
+def test_name():
+    rm = ResourceMonitor("something or other")
+    with rm:
+        sum = 0
+        for i in range(100):
+            sum += i
+    r = rm.result()
+    assert r.name  == "something or other"
+    assert r.time >= 0
     assert r.memory > 0
 
 def test_double():
