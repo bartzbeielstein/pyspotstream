@@ -1,4 +1,5 @@
 """Monitor resource usage of a block."""
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
 # import gc
 import time
