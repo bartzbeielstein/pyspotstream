@@ -48,10 +48,10 @@ class ResourceMonitor:
             raise ResourceMonitorError("Already tracing memory usage!")
         tracemalloc.start()
         tracemalloc.reset_peak()
-        self._start = time.time_ns()
+        self._start = time.perf_counter_ns()
 
     def __exit__(self, type, value, traceback):
-        self.time = (time.time_ns() - self._start) / 1.0e9
+        self.time = (time.perf_counter_ns() - self._start) / 1.0e9
         self.memory = tracemalloc.get_traced_memory()[1]
         tracemalloc.stop()
 
