@@ -6,6 +6,9 @@ import time
 
 from dataclasses import dataclass
 
+class ResourceMonitorError(Exception):
+    pass
+
 @dataclass
 class ResourceUsage:
     time: float   # Measured in seconds
@@ -25,7 +28,7 @@ class ResourceMonitor:
     
     def __enter__(self):
         if tracemalloc.is_tracing():
-            raise Exception("Already tracing memory usage!")            
+            raise ResourceMonitorError("Already tracing memory usage!")            
         tracemalloc.start()
         tracemalloc.reset_peak()
         self._start = time.time_ns()
@@ -37,5 +40,5 @@ class ResourceMonitor:
         
     def result(self):
         if self.time is None or self.memory is None:
-            raise Exception("No resources monitored yet.")
+            raise ResourceMonitorError("No resources monitored yet.")
         return ResourceUsage(time=self.time, memory=self.memory)

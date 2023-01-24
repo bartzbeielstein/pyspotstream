@@ -1,3 +1,3 @@
-from ._rm import ResourceMonitor
+from ._rm import ResourceMonitor, ResourceMonitorError
 
-__all__ = ["ResourceMonitor"]
+__all__ = ["ResourceMonitor", "ResourceMonitorError"]
