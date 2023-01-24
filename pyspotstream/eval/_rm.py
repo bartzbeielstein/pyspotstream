@@ -1,8 +1,10 @@
 """Monitor resource usage of a block."""
 
 import gc
-import tracemalloc
 import time
+import tracemalloc
+
+from typing import Optional
 
 from dataclasses import dataclass
 
@@ -11,17 +13,25 @@ class ResourceMonitorError(Exception):
 
 @dataclass
 class ResourceUsage:
+    name: Optional[str]     # Description of Usage
     time: float   # Measured in seconds
     memory: float # Measured in bytes    
     
     def __str__(self):
-        return f"Time used [s]: {self.time}\nMemory used [b]: {self.memory}"
+        if self.name is None:
+            res = [f"Resource usage for {self.name}:"]
+        else:
+            res = ["Resource usage:"]
+        res.append(f"  Time [s]: {self.time}")
+        res.append(f"  Memory [b]: {self.memory}")
+        return "\n".join(res)
     
     def __repr__(self):
         return str(self)   
     
 class ResourceMonitor:
-    def __init__(self):
+    def __init__(self, name:Optional[str] = None):
+        self.name = name
         self.time = None
         self.memory = None
         self._start = None        
@@ -44,4 +54,4 @@ class ResourceMonitor:
     def result(self):
         if self.time is None or self.memory is None:
             raise ResourceMonitorError("No resources monitored yet.")
-        return ResourceUsage(time=self.time, memory=self.memory)
+        return ResourceUsage(name=self.name, time=self.time, memory=self.memory)
