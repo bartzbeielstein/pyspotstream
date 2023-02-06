@@ -276,8 +276,8 @@ class ML_Evaluations:
                     if verbose:
                         print(f"\tFit on {x_seq[i - n_fit]}:{break_point}.")
                     model_dict[break_point].fit(
-                        X.iloc[x_seq[i - n_fit] : break_point],
-                        y.iloc[x_seq[i - n_fit] : break_point],
+                        X.iloc[x_seq[i - n_fit]:break_point],
+                        y.iloc[x_seq[i - n_fit]:break_point],
                     )
 
                 # -- EVALUATION --
@@ -352,8 +352,8 @@ class ML_Evaluations:
                     if verbose:
                         print(f"\tFit on {x_seq[i - n_fit]}:{break_point}.")
                     model_dict[break_point].learn_many(
-                        X.iloc[x_seq[i - n_fit] : break_point],
-                        y.iloc[x_seq[i - n_fit] : break_point],
+                        X.iloc[x_seq[i - n_fit]:break_point],
+                        y.iloc[x_seq[i - n_fit]:break_point],
                     )
 
                 # -- EVALUATION --
